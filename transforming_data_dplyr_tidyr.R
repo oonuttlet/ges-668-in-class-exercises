@@ -54,3 +54,43 @@ storms |>
   ggplot(aes(wind_pressure_ratio)) +
     geom_histogram()
 
+### PARSONS PROBLEMS
+
+# wind > 130
+# storms |> 
+#   filter(
+#   library(dplyr)
+#   year == 2010,
+# )
+
+# 423516
+
+library(dplyr)
+
+storms |> 
+  filter(year == 2010,
+         wind > 130
+         )
+
+storms |> 
+  select(c(wind, pressure, ends_with("diameter")))
+
+# mutate()
+
+library(dplyr)
+
+storms |>
+  mutate(ratio = pressure/wind,
+         .before = everything()) |>
+  arrange((ratio)) |>
+  relocate(wind, pressure, status, category, .after = ratio)
+
+storms |>
+  group_by(year, name) |>
+  mutate(lag_wind = lag(wind),
+         wind_change = wind-lag_wind,
+         lag_status = lag(status),
+         .before = everything()) |>
+  View()
+
+
