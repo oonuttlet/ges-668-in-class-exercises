@@ -94,3 +94,51 @@ storms |>
   View()
 
 
+### TRANSFORMING SPATIAL DATA
+
+library(sf)
+options(tigris_use_cache = TRUE)
+
+storms_sf <- st_as_sf(storms, coords = c("long", "lat"), crs = 4326)
+
+us_states <- tigris::states()
+
+storms_sf <- st_transform(storms_sf, crs = 3857)
+us_states <- st_transform(us_states, crs = 3857)
+
+filter(
+  storms_sf,
+  wind > 50
+) # attribute filter
+
+st_int_storms <- function(x,y) {
+  filter(
+  x,
+  as.logical(st_intersects(geometry, y, sparse = T))
+)} # spatial filter
+
+bracket_storms <- function(x,y) {x[y,]} # same filter, different syntax
+
+st_flt_storms <- function(x,y) {
+  x |>
+    st_filter(y)
+}
+
+microbenchmark::microbenchmark(st_int_storms(storms_sf, us_states),
+                               bracket_storms(storms_sf, us_states),
+                               st_flt_storms(storms_sf, us_states)) # benchmark
+
+storms_categories <- storms_sf |>
+  group_by(category) |>
+  summarise(); plot(storms_categories)
+
+storms_tracks <- storms_sf |>
+  group_by(year, name) |>
+  summarise(do_union = F) |>
+  st_cast("LINESTRING"); plot(storms_tracks["year"])
+
+
+# which states have been touched by a category 4 storm?
+
+us_states |>
+  st_filter(filter(storms_sf, category == 4))
