@@ -1,6 +1,7 @@
 library(tigris)
 library(tidyverse)
 library(sf)
+library(arcgislayers)
 options(tigris_use_cache = T)
 
 us_states <- states(year = 2022)
@@ -33,3 +34,20 @@ us_states |>
 storms_wstates <- storms_sf |>
   st_join(us_states, left = F) |>
   glimpse()
+
+loads <- arc_read("https://gis.chesapeakebay.net/ags/rest/services/WIP/Loads_2018_01_07_20/MapServer/0")
+
+cb_counties <- counties(cb = T)
+fips_codes <- fips_codes |>
+  mutate(GEOID = paste0(state_code, county_code))
+
+cb_counties_joined <- cb_counties |>
+  left_join(fips_codes, by = join_by(GEOID)) |>
+  mutate(ST = state,
+         CNTYNAME = str_to_upper(NAME)) |>
+  st_drop_geometry() |>
+  distinct(ST, CNTYNAME, .keep_all = T)
+
+loads |>
+  left_join(cb_counties_joined,
+            by = join_by("ST", "CNTYNAME"))
