@@ -59,3 +59,23 @@ is_it_wednesday <- function(x) {
     return("No...")
   }
 }
+
+
+### IS EVEN 2024-10-26 ###
+
+# Function that determines whether a number is even or odd
+# Take one or more numbers
+# Return a value indicating whether the value is even or odd (must be the same length as the input vector)
+# Name, arguments, body
+
+is_even <- function(num){
+  if (!is.numeric(num)){
+    cli::cli_abort("`num` must be numeric!")
+  }
+  ifelse(num%%2 == 0, "Even!", "Odd!")
+}
+
+is_even_josh <- function(num) {
+  dplyr::if_else(num %% 2 == 0, TRUE, FALSE)
+}
+
